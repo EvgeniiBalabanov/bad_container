@@ -130,26 +130,35 @@ public:
 	Производит аллокацию нового массива данных размера newSize
 	и переносит/копирует старые данные в новый массив
 	*/
-	void	reserve(size_t newSize) {
-		if (capacity_ >= newSize)
+	void	reserve(size_t newCapacity) {
+		if (capacity_ >= newCapacity)
 			return;
 		// Перенос старых данных в новую область памяти
-		T* newArray = allocator_.allocate(newSize);
+		T* newArray = allocator_.allocate(newCapacity);
 		for (size_t counter = 0; counter < size_; ++counter) {
 			AllocatorTraits::construct(allocator_, newArray + counter, std::move_if_noexcept(array_[counter]));
 		}
+		size_t saveSize = size_;
 		// Удаление старых данных
+		clear();
+		// Подмена данных
+		array_ = newArray;
+		capacity_ = newCapacity;
+		size_ = saveSize;
+	}
+
+	// Modifiers
+	void	clear(void) {
 		size_t counter = size_;
 		while (counter--) {
 			AllocatorTraits::destroy(allocator_, array_ + counter);
 		}
 		AllocatorTraits::deallocate(allocator_, array_, capacity_);
-		// Подмена данных
-		capacity_ = newSize;
-		array_ = newArray;
+		array_ = nullptr;
+		size_ = 0;
+		capacity_ = 0;
 	}
 
-	// Modifiers
 	void	push_back(const T& element) {
 		if (capacity_ == size_)
 			reserve(capacity_ ? capacity_ * 2 : 1);
@@ -171,9 +180,10 @@ public:
 	void	erase(iterator begin, iterator end) {
 		size_t count = end - begin;
 		iterator iter = begin;
-		while (iter + count < this->end()) {
+		while (iter < this->end()) {
 			AllocatorTraits::destroy(allocator_, &(*iter));
-			AllocatorTraits::construct(allocator_, &(*iter), std::move_if_noexcept(*(iter + count)));
+			if (iter + count < this->end())
+				AllocatorTraits::construct(allocator_, &(*iter), std::move_if_noexcept(*(iter + count)));
 			iter++;
 		}
 		size_ -= count;
