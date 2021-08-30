@@ -12,9 +12,13 @@ private:
 
 	using AllocatorTraits = std::allocator_traits<Allocator>;
 
+public:
 	class iterator {
+	private:
 		T*		pointer_;
-		iterator(const T* pointer): pointer_(pointer) {}
+	public:
+		iterator(T* pointer): pointer_(pointer) {}
+		iterator(const iterator& other): pointer_(other.pointer_) {}
 		T&	operator*(void) const {
 			return *pointer_;
 		}
@@ -22,36 +26,36 @@ private:
 			return pointer_;
 		}
 		// Increment operation
-		T&	operator++(void) {
+		iterator&	operator++(void) {
 			++pointer_;
 			return *this;
 		}
-		T	operator++(int) {
+		iterator	operator++(int) {
 			iterator copy = *this;
-			pointer_++;
+			++pointer_;
 			return copy;
 		}
-		T&	operator--(void) {
+		iterator&	operator--(void) {
 			--pointer_;
 			return *this;
 		}
-		T	operator--(int) {
+		iterator	operator--(int) {
 			iterator copy = *this;
-			pointer_--;
+			--pointer_;
 			return copy;
 		}
 		// Math operation
-		T	operator+(size_t count) {
+		iterator	operator+(size_t count) {
 			return iterator(pointer_ + count);
 		}
-		T	operator-(size_t count) {
+		iterator	operator-(size_t count) {
 			return iterator(pointer_ - count);
 		}
-		T&	operator+=(size_t count) {
+		iterator&	operator+=(size_t count) {
 			pointer_ += count;
 			return *this;
 		}
-		T&	operator-=(size_t count) {
+		iterator&	operator-=(size_t count) {
 			pointer_ -= count;
 			return *this;
 		}
@@ -61,6 +65,9 @@ private:
 		// Compare
 		bool	operator==(const iterator& other) const {
 			return pointer_ == other.pointer_;
+		}
+		bool	operator!=(const iterator& other) const {
+			return pointer_ != other.pointer_;
 		}
 		bool	operator<(const iterator& other) const {
 			return pointer_ < other.pointer_;
@@ -164,10 +171,9 @@ public:
 	void	erase(iterator begin, iterator end) {
 		size_t count = end - begin;
 		iterator iter = begin;
-		while (iter != end) {
-			AllocatorTraits::destroy(allocator_, *iter);
-			if (iter + count < end())
-				AllocatorTraits::construct(allocator_, &(*iter), std::move_if_noexcept(*(iter + count)));
+		while (iter + count < this->end()) {
+			AllocatorTraits::destroy(allocator_, &(*iter));
+			AllocatorTraits::construct(allocator_, &(*iter), std::move_if_noexcept(*(iter + count)));
 			iter++;
 		}
 		size_ -= count;

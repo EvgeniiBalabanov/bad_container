@@ -154,3 +154,39 @@ TEST(VectorRemoveElement, popBackInt) {
 	}
 	vectorEqually(my, original);
 }
+
+TEST(VectorIterator, equality) {
+	bad::vector<int>	my;
+	EXPECT_EQ(my.begin(), my.end());
+}
+
+TEST(VectorIterator, addNum) {
+	bad::vector<int>	my;
+	EXPECT_EQ(my.begin() + 6, my.end() + 6);
+}
+
+void	caseErase(size_t start, size_t end) {
+	std::vector<int>	nums{0,1,5,16,31,32,33,400};
+	bad::vector<int>	my;
+	std::vector<int>	original;
+
+	for (int num: nums) {
+		my.emplace_back(num);
+		original.emplace_back(num);
+	}
+	my.erase(my.begin() + start, my.begin() + end);
+	original.erase(original.begin() + start, original.begin() + end);
+	vectorEqually(my, original);
+}
+
+TEST(VectorRemoveElement, eraseInt) {
+	caseErase(0, 8);
+	caseErase(0, 0);
+	caseErase(0, 1);
+	caseErase(0, 4);
+	caseErase(4, 4);
+	caseErase(4, 5);
+	caseErase(4, 6);
+	caseErase(4, 8);
+	caseErase(8, 8);
+}
