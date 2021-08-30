@@ -42,6 +42,20 @@ TEST(VectorCreate, CopyEmptyVector) {
 	vectorEqually(my2, original2);
 }
 
+TEST(VectorCreate, CopyVector) {
+	bad::vector<int>	my;
+	std::vector<int>	original;
+	std::vector<int>	nums{0,1,5,16,31,32,33,400};
+	for (int num: nums) {
+		my.push_back(num);
+		original.push_back(num);
+	}
+	bad::vector<int>	my2(my);
+	std::vector<int>	original2(original);
+	vectorEqually(my, original);
+	vectorEqually(my2, original2);
+}
+
 template<typename T>
 void	reserveEmpty(size_t newSize) {
 	bad::vector<T>	my;
@@ -109,6 +123,34 @@ TEST(VectorAddElement, emplaceBackSimpleClass) {
 		vectorEqually(my, original);
 		my.emplace_back(element.i_, element.st_, element.s_);
 		original.emplace_back(element.i_, element.st_, element.s_);
+	}
+	vectorEqually(my, original);
+}
+
+TEST(VectorRemoveElement, popBackInt) {
+	std::vector<int>	nums{0,1,5,16,31,32,33,400};
+	bad::vector<int>	my;
+	std::vector<int>	original;
+
+	for (int num: nums) {
+		vectorEqually(my, original);
+		my.emplace_back(num);
+		original.emplace_back(num);
+	}
+	while (original.size()) {
+		vectorEqually(my, original);
+		my.pop_back();
+		original.pop_back();
+	}
+	for (int num: nums) {
+		vectorEqually(my, original);
+		my.emplace_back(num);
+		original.emplace_back(num);
+	}
+	while (original.size()) {
+		vectorEqually(my, original);
+		my.pop_back();
+		original.pop_back();
 	}
 	vectorEqually(my, original);
 }

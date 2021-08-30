@@ -11,6 +11,62 @@ private:
 	Allocator	allocator_;
 
 	using AllocatorTraits = std::allocator_traits<Allocator>;
+
+	class iterator {
+		T*		pointer_;
+		iterator(const T* pointer): pointer_(pointer) {}
+		T&	operator*(void) const {
+			return *pointer_;
+		}
+		T*	operator->(void) const {
+			return pointer_;
+		}
+		// Increment operation
+		T&	operator++(void) {
+			++pointer_;
+			return *this;
+		}
+		T	operator++(int) {
+			iterator copy = *this;
+			pointer_++;
+			return copy;
+		}
+		T&	operator--(void) {
+			--pointer_;
+			return *this;
+		}
+		T	operator--(int) {
+			iterator copy = *this;
+			pointer_--;
+			return copy;
+		}
+		// Math operation
+		T	operator+(size_t count) {
+			return iterator(pointer_ + count);
+		}
+		T	operator-(size_t count) {
+			return iterator(pointer_ - count);
+		}
+		T&	operator+=(size_t count) {
+			pointer_ += count;
+			return *this;
+		}
+		T&	operator-=(size_t count) {
+			pointer_ -= count;
+			return *this;
+		}
+		size_t	operator-(const iterator& other) const {
+			return pointer_ - other.pointer_;
+		}
+		// Compare
+		bool	operator==(const iterator& other) const {
+			return pointer_ == other.pointer_;
+		}
+		bool	operator<(const iterator& other) const {
+			return pointer_ < other.pointer_;
+		}
+	};
+
 public:
 	// Member functions
 	vector(const Allocator& allocator = Allocator()): array_(nullptr), capacity_(0), size_(0), allocator_(allocator) {};
@@ -32,6 +88,25 @@ public:
 		}
 		AllocatorTraits::deallocate(allocator_, array_, capacity_);
 	}
+
+	// Element access
+	T&	operator[](size_t index) const {
+		return array_[index];
+	}
+
+	// Iterators
+	iterator	begin() const {
+		return iterator(array_);
+	}
+	iterator	end() const {
+		return iterator(array_ + size_);
+	}
+	// reverse_iterator	rbegin() const {
+	// 	return iterator(array_ + size_ - 1);
+	// }
+	// reverse_iterator	rend() const {
+	// 	return iterator(array_ - 1);
+	// }
 
 	// Capacity
 	size_t	size(void) const {
@@ -86,10 +161,18 @@ public:
 			return ;
 		AllocatorTraits::destroy(allocator_, array_ + --size_);
 	}
-	// Non-member functions
-	T&	operator[](size_t index) const {
-		return array_[index];
+	void	erase(iterator begin, iterator end) {
+		size_t count = end - begin;
+		iterator iter = begin;
+		while (iter != end) {
+			AllocatorTraits::destroy(allocator_, *iter);
+			if (iter + count < end())
+				AllocatorTraits::construct(allocator_, &(*iter), std::move_if_noexcept(*(iter + count)));
+			iter++;
+		}
+		size_ -= count;
 	}
+	// Non-member functions
 
 };
 
