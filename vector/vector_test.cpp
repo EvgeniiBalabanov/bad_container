@@ -105,7 +105,7 @@ TEST(VectorAddElement, emplaceBackSimpleClass) {
 	bad::vector<SimpleClass>	my;
 	std::vector<SimpleClass>	original;
 
-	for (const SimpleClass& element: elements) {
+	for (SimpleClass element: elements) {
 		vectorEqually(my, original);
 		my.emplace_back(element.i_, element.st_, element.s_);
 		original.emplace_back(element.i_, element.st_, element.s_);

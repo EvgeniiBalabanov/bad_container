@@ -20,6 +20,7 @@ target_link_libraries(
 	vector_test
 	gtest_main
 )
+add_compile_options(-g -Wall -Wextra)
 
 include(GoogleTest)
 gtest_discover_tests(vector_test)
