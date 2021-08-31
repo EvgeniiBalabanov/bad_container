@@ -77,6 +77,20 @@ public:
 public:
 	// Member functions
 	vector(const Allocator& allocator = Allocator()): array_(nullptr), capacity_(0), size_(0), allocator_(allocator) {};
+	vector(size_t count, const Allocator& allocator = Allocator()): array_(nullptr), capacity_(0), size_(0), allocator_(allocator) {
+		reserve(count);
+		for (size_t counter = 0; counter < count; counter++) {
+			AllocatorTraits::construct(allocator_, array_ + counter);
+		}
+		size_ = count;
+	};
+	vector(size_t count, const T& prototype, const Allocator& allocator = Allocator()): array_(nullptr), capacity_(0), size_(0), allocator_(allocator) {
+		reserve(count);
+		for (size_t counter = 0; counter < count; counter++) {
+			AllocatorTraits::construct(allocator_, array_ + counter, prototype);
+		}
+		size_ = count;
+	};
 	vector(const vector<T, Allocator>& other): array_(nullptr), capacity_(other.capacity_), size_(other.size_), allocator_(other.allocator_) {
 		array_ = AllocatorTraits::allocate(allocator_, capacity_);
 		for (size_t counter = 0; counter < size_; ++counter) {

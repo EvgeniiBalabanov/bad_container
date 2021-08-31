@@ -4,10 +4,11 @@
 #include <string>
 
 struct SimpleClass {
-	int			i_;
-	size_t		st_;
-	std::string	s_;
+	int			i_ = 4;
+	size_t		st_ = 5;
+	std::string	s_ = "hello";
 
+	SimpleClass(void) = default;
 	SimpleClass(int i, size_t st, const std::string& s): i_(i), st_(st), s_(s) {}
 	bool	operator==(const SimpleClass& other) const {
 		return (
@@ -40,6 +41,25 @@ TEST(VectorCreate, CopyEmptyVector) {
 	std::vector<int>	original2(original);
 	vectorEqually(my, original);
 	vectorEqually(my2, original2);
+}
+
+TEST(VectorCreate, CreateDefaultVectorInt) {
+	bad::vector<int>	my(10);
+	std::vector<int>	original(10);
+	vectorEqually(my, original);
+}
+
+TEST(VectorCreate, CreateDefaultVectorSimpleClass) {
+	bad::vector<SimpleClass>	my(10);
+	std::vector<SimpleClass>	original(10);
+	vectorEqually(my, original);
+}
+
+TEST(VectorCreate, CreatePrototypeVectorSimpleClass) {
+	SimpleClass prototype{111, 222, "Inner"};
+	bad::vector<SimpleClass>	my(10, prototype);
+	std::vector<SimpleClass>	original(10, prototype);
+	vectorEqually(my, original);
 }
 
 TEST(VectorCreate, CopyVector) {
